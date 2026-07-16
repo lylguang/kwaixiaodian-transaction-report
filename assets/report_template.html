@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>å¿«æå°åº {{PERIOD}} äº¤ææ°æ®æ¥å â {{SHOP_NAME}}</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+    background: #f0f2f5;
+    color: #333;
+    line-height: 1.6;
+  }
+  .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
+
+  /* Header */
+  .header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: #fff;
+    padding: 40px 30px;
+    border-radius: 16px;
+    margin-bottom: 24px;
+    box-shadow: 0 4px 20px rgba(102, 126, 234, 0.3);
+  }
+  .header h1 { font-size: 28px; margin-bottom: 8px; }
+  .header .subtitle { font-size: 14px; opacity: 0.9; }
+  .header .meta { display: flex; gap: 24px; margin-top: 16px; flex-wrap: wrap; }
+  .header .meta-item {
+    background: rgba(255,255,255,0.15);
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-size: 13px;
+  }
+
+  /* Section */
+  .section {
+    background: #fff;
+    border-radius: 12px;
+    padding: 24px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  }
+  .section-title {
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 16px;
+    padding-left: 12px;
+    border-left: 4px solid #667eea;
+  }
+
+  /* KPI Cards */
+  .kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+    margin-bottom: 8px;
+  }
+  .kpi-card {
+    background: linear-gradient(135deg, #f5f7fa 0%, #e8ecf3 100%);
+    border-radius: 12px;
+    padding: 20px;
+    text-align: center;
+    border: 1px solid #e8ecf3;
+    transition: transform 0.2s;
+  }
+  .kpi-card:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+  .kpi-card .label { font-size: 12px; color: #888; margin-bottom: 8px; }
+  .kpi-card .value { font-size: 28px; font-weight: 800; color: #333; }
+  .kpi-card .value.red { color: #e74c3c; }
+  .kpi-card .value.green { color: #27ae60; }
+  .kpi-card .value.blue { color: #3498db; }
+  .kpi-card .value.orange { color: #f39c12; }
+  .kpi-card .unit { font-size: 14px; font-weight: 400; color: #888; }
+
+  /* Table */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+  th {
+    background: #f8f9fa;
+    padding: 12px 10px;
+    text-align: center;
+    font-weight: 600;
+    color: #555;
+    border-bottom: 2px solid #e0e0e0;
+    white-space: nowrap;
+  }
+  td {
+    padding: 10px;
+    text-align: center;
+    border-bottom: 1px solid #f0f0f0;
+  }
+  tr:hover td { background: #fafbfc; }
+  .td-red { color: #e74c3c; font-weight: 600; }
+  .td-green { color: #27ae60; font-weight: 600; }
+  .td-bold { font-weight: 700; }
+  .td-highlight { background: #fff8e1; }
+
+  /* Chart bars */
+  .bar-chart { display: flex; align-items: flex-end; gap: 40px; height: 200px; padding: 20px 0; justify-content: center; }
+  .bar-group { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+  .bar {
+    width: 60px;
+    border-radius: 8px 8px 0 0;
+    transition: height 0.5s ease;
+    position: relative;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    color: #fff;
+    font-size: 12px;
+    font-weight: 600;
+    padding-top: 8px;
+  }
+  .bar-label { font-size: 13px; color: #666; font-weight: 600; }
+  .bar-value { font-size: 12px; color: #888; }
+
+  /* Trend indicator */
+  .trend-up { color: #e74c3c; }
+  .trend-down { color: #27ae60; }
+  .trend-flat { color: #888; }
+
+  /* Insight box */
+  .insight-box {
+    background: #fff3cd;
+    border-left: 4px solid #ffc107;
+    padding: 16px 20px;
+    border-radius: 8px;
+    margin-bottom: 12px;
+  }
+  .insight-box.danger { background: #fde8e8; border-left-color: #e74c3c; }
+  .insight-box.info { background: #e8f4fd; border-left-color: #3498db; }
+  .insight-box.success { background: #e8f8e8; border-left-color: #27ae60; }
+  .insight-box h4 { font-size: 14px; margin-bottom: 6px; }
+  .insight-box p { font-size: 13px; color: #555; }
+
+  /* Footer */
+  .footer {
+    text-align: center;
+    padding: 20px;
+    color: #999;
+    font-size: 12px;
+  }
+
+  @media (max-width: 768px) {
+    .container { padding: 10px; }
+    .header { padding: 24px 16px; }
+    .header h1 { font-size: 22px; }
+    .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+    .kpi-card .value { font-size: 22px; }
+    table { font-size: 12px; }
+    th, td { padding: 8px 4px; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <!-- ========== HEADER ========== -->
+  <!-- æ¿æ¢: {{PERIOD}} = æ¥åå¨æ(å¦ "2025 Q3"), {{SHOP_NAME}} = åºéºåç§°, {{SHOP_ID}} = åºéºID, {{DATE_RANGE}} = æ¥æèå´, {{REPORT_DATE}} = çææ¥æ -->
+  <div class="header">
+    <h1>å¿«æå°åº {{PERIOD}} äº¤ææ°æ®æ¥å</h1>
+    <div class="subtitle">{{SHOP_NAME}} | æ°æ®æ¥æºï¼çæé Â· å¨åºæäº¤åæ</div>
+    <div class="meta">
+      <div class="meta-item">ç»è®¡å¨æï¼{{DATE_RANGE}}</div>
+      <div class="meta-item">åºéºIDï¼{{SHOP_ID}}</div>
+      <div class="meta-item">æ¥åçæï¼{{REPORT_DATE}}</div>
+    </div>
+  </div>
+
+  <!-- ========== æ ¸å¿KPI ========== -->
+  <!-- æ¿æ¢: {{TOTAL_GMV}} = å­£åº¦æäº¤éé¢, {{TOTAL_REFUND}} = å­£åº¦éæ¬¾éé¢, {{REFUND_RATE}} = éæ¬¾ç, {{NET_GMV}} = åæäº¤é¢, {{TOTAL_ORDERS}} = æäº¤è®¢åæ°, {{TOTAL_BUYERS}} = æäº¤äººæ°, {{AVG_PRICE}} = å®¢åä»· -->
+  <div class="section">
+    <div class="section-title">{{PERIOD}} æ ¸å¿ææ æ»è§</div>
+    <div class="kpi-grid">
+      <div class="kpi-card">
+        <div class="label">æäº¤éé¢</div>
+        <div class="value red">{{TOTAL_GMV}}</div>
+        <div class="unit">{{PERIOD}}åè®¡</div>
+      </div>
+      <div class="kpi-card">
+        <div class="label">éæ¬¾éé¢ï¼æ¯ä»æ¥ï¼</div>
+        <div class="value green">{{TOTAL_REFUND}}</div>
+        <div class="unit">éæ¬¾ç {{REFUND_RATE}}%</div>
+      </div>
+      <div class="kpi-card">
+        <div class="label">åæäº¤é¢ï¼æ£éæ¬¾ï¼</div>
+        <div class="value blue">{{NET_GMV}}</div>
+        <div class="unit">å®éå¥è´¦</div>
+      </div>
+      <div class="kpi-card">
+        <div class="label">æäº¤è®¢åæ°</div>
+        <div class="value orange">{{TOTAL_ORDERS}}</div>
+        <div class="unit">ç¬</div>
+      </div>
+      <div class="kpi-card">
+        <div class="label">æäº¤äººæ°</div>
+        <div class="value blue">{{TOTAL_BUYERS}}</div>
+        <div class="unit">äºº</div>
+      </div>
+      <div class="kpi-card">
+        <div class="label">å®¢åä»·</div>
+        <div class="value orange">{{AVG_PRICE}}</div>
+        <div class="unit">å/äºº</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== æåº¦è¶å¿æ±ç¶å¾ ========== -->
+  <!-- æ¿æ¢: {{MONTH1_NAME}}/{{MONTH1_GMV}}/{{MONTH1_BAR_HEIGHT}}, {{MONTH2_NAME}}/{{MONTH2_GMV}}/{{MONTH2_BAR_HEIGHT}}, {{MONTH3_NAME}}/{{MONTH3_GMV}}/{{MONTH3_BAR_HEIGHT}} -->
+  <!-- bar-heightè®¡ç®: ä»¥æå¤§æåº¦éé¢ä¸º170pxé«åº¦ï¼ææ¯ä¾è®¡ç®å¶ä»æä»½é«åº¦ -->
+  <!-- é¢è²å»ºè®®: æ1=#667eeaâ#764ba2, æ2=#f093fbâ#f5576c, æ3=#4facfeâ#00f2fe -->
+  <div class="section">
+    <div class="section-title">æåº¦æäº¤éé¢è¶å¿</div>
+    <div class="bar-chart">
+      <div class="bar-group">
+        <div class="bar-value">{{MONTH1_GMV}}</div>
+        <div class="bar" style="height: {{MONTH1_BAR_HEIGHT}}px; background: linear-gradient(180deg, #667eea, #764ba2);">{{MONTH1_NAME}}</div>
+        <div class="bar-label">{{MONTH1_FULL}}</div>
+      </div>
+      <div class="bar-group">
+        <div class="bar-value">{{MONTH2_GMV}}</div>
+        <div class="bar" style="height: {{MONTH2_BAR_HEIGHT}}px; background: linear-gradient(180deg, #f093fb, #f5576c);">{{MONTH2_NAME}}</div>
+        <div class="bar-label">{{MONTH2_FULL}}</div>
+      </div>
+      <div class="bar-group">
+        <div class="bar-value">{{MONTH3_GMV}}</div>
+        <div class="bar" style="height: {{MONTH3_BAR_HEIGHT}}px; background: linear-gradient(180deg, #4facfe, #00f2fe);">{{MONTH3_NAME}}</div>
+        <div class="bar-label">{{MONTH3_FULL}}</div>
+      </div>
+    </div>
+    <div style="text-align:center; margin-top:12px; color:#888; font-size:13px;">
+      {{TREND_COMMENT}}
+    </div>
+  </div>
+
+  <!-- ========== æåº¦æ ¸å¿æ°æ®æç»è¡¨ ========== -->
+  <!-- æ¯è¡ä¸ä¸ªæçæ°æ®ï¼æ¿æ¢å¯¹åºçå ä½ç¬¦ -->
+  <div class="section">
+    <div class="section-title">æåº¦æ ¸å¿æ°æ®æç»</div>
+    <table>
+      <thead>
+        <tr>
+          <th>ææ </th>
+          <th>{{MONTH1_NAME}}</th>
+          <th>{{MONTH2_NAME}}</th>
+          <th>{{MONTH3_NAME}}</th>
+          <th>{{PERIOD}}åè®¡</th>
+          <th>ç¯æ¯åå</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="td-bold">æäº¤éé¢</td>
+          <td class="td-red td-bold">{{M1_GMV}}</td>
+          <td class="td-red td-bold">{{M2_GMV}}</td>
+          <td class="td-red td-bold">{{M3_GMV}}</td>
+          <td class="td-red td-bold">{{TOTAL_GMV}}</td>
+          <td>{{GMV_TREND}}</td>
+        </tr>
+        <tr>
+          <td class="td-bold">éæ¬¾éé¢ï¼æ¯ä»æ¥ï¼</td>
+          <td class="td-green">{{M1_REFUND}}</td>
+          <td class="td-green">{{M2_REFUND}}</td>
+          <td class="td-green">{{M3_REFUND}}</td>
+          <td class="td-green">{{TOTAL_REFUND}}</td>
+          <td>{{REFUND_TREND}}</td>
+        </tr>
+        <tr>
+          <td class="td-bold">åæäº¤é¢ï¼æ£éæ¬¾ï¼</td>
+          <td class="td-bold">{{M1_NET}}</td>
+          <td class="td-bold">{{M2_NET}}</td>
+          <td class="td-bold">{{M3_NET}}</td>
+          <td class="td-bold">{{NET_GMV}}</td>
+          <td>{{NET_TREND}}</td>
+        </tr>
+        <tr>
+          <td class="td-bold">æäº¤è®¢åæ°</td>
+          <td>{{M1_ORDERS}}</td>
+          <td>{{M2_ORDERS}}</td>
+          <td>{{M3_ORDERS}}</td>
+          <td class="td-bold">{{TOTAL_ORDERS}}</td>
+          <td>{{ORDERS_TREND}}</td>
+        </tr>
+        <tr>
+          <td class="td-bold">æäº¤äººæ°</td>
+          <td>{{M1_BUYERS}}</td>
+          <td>{{M2_BUYERS}}</td>
+          <td>{{M3_BUYERS}}</td>
+          <td class="td-bold">{{TOTAL_BUYERS}}</td>
+          <td>{{BUYERS_TREND}}</td>
+        </tr>
+        <tr>
+          <td class="td-bold">å®¢åä»·</td>
+          <td>{{M1_AVG}}</td>
+          <td>{{M2_AVG}}</td>
+          <td>{{M3_AVG}}</td>
+          <td class="td-bold">{{AVG_PRICE}}</td>
+          <td>{{AVG_TREND}}</td>
+        </tr>
+        <tr>
+          <td class="td-bold">éé¢éæ¬¾ç</td>
+          <td class="td-red">{{M1_REFUND_RATE}}</td>
+          <td class="td-red">{{M2_REFUND_RATE}}</td>
+          <td>{{M3_REFUND_RATE}}</td>
+          <td class="td-bold">{{REFUND_RATE}}%</td>
+          <td>{{REFUND_RATE_TREND}}</td>
+        </tr>
+        <tr>
+          <td class="td-bold">ä¸åè®¢åæ°</td>
+          <td>{{M1_PLACE_ORDERS}}</td>
+          <td>{{M2_PLACE_ORDERS}}</td>
+          <td>{{M3_PLACE_ORDERS}}</td>
+          <td>{{TOTAL_PLACE_ORDERS}}</td>
+          <td>{{PLACE_ORDERS_TREND}}</td>
+        </tr>
+        <tr>
+          <td class="td-bold">ååæåæ¬¡æ°</td>
+          <td>{{M1_EXPOSURE}}</td>
+          <td>{{M2_EXPOSURE}}</td>
+          <td>{{M3_EXPOSURE}}</td>
+          <td class="td-bold">{{TOTAL_EXPOSURE}}</td>
+          <td>{{EXPOSURE_TREND}}</td>
+        </tr>
+        <tr>
+          <td class="td-bold">ååç¹å»æ¬¡æ°</td>
+          <td>{{M1_CLICKS}}</td>
+          <td>{{M2_CLICKS}}</td>
+          <td>{{M3_CLICKS}}</td>
+          <td class="td-bold">{{TOTAL_CLICKS}}</td>
+          <td>{{CLICKS_TREND}}</td>
+        </tr>
+        <tr>
+          <td class="td-bold">ç¹å»æäº¤è½¬åç</td>
+          <td>{{M1_CVR}}</td>
+          <td>{{M2_CVR}}</td>
+          <td>{{M3_CVR}}</td>
+          <td>â</td>
+          <td>{{CVR_COMMENT}}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ========== å®åæ¹å¼ææ ========== -->
+  <div class="section">
+    <div class="section-title">å®åæ¹å¼ææ</div>
+    <table>
+      <thead>
+        <tr>
+          <th>å®åæ¹å¼</th>
+          <th>{{MONTH1_NAME}}æäº¤</th>
+          <th>å æ¯</th>
+          <th>{{MONTH2_NAME}}æäº¤</th>
+          <th>å æ¯</th>
+          <th>{{MONTH3_NAME}}æäº¤</th>
+          <th>å æ¯</th>
+          <th>{{PERIOD}}åè®¡</th>
+          <th>{{PERIOD}}å æ¯</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="td-bold">èªè¥</td>
+          <td>{{M1_SELF}}</td>
+          <td>{{M1_SELF_PCT}}</td>
+          <td>{{M2_SELF}}</td>
+          <td>{{M2_SELF_PCT}}</td>
+          <td>{{M3_SELF}}</td>
+          <td>{{M3_SELF_PCT}}</td>
+          <td>{{TOTAL_SELF}}</td>
+          <td>{{TOTAL_SELF_PCT}}</td>
+        </tr>
+        <tr class="td-highlight">
+          <td class="td-bold">è¾¾äººåä½</td>
+          <td class="td-red">{{M1_DAREN}}</td>
+          <td>{{M1_DAREN_PCT}}</td>
+          <td class="td-red">{{M2_DAREN}}</td>
+          <td>{{M2_DAREN_PCT}}</td>
+          <td class="td-red">{{M3_DAREN}}</td>
+          <td>{{M3_DAREN_PCT}}</td>
+          <td class="td-red td-bold">{{TOTAL_DAREN}}</td>
+          <td class="td-red td-bold">{{TOTAL_DAREN_PCT}}</td>
+        </tr>
+        <tr>
+          <td>è¶çº§é¾æ¥</td>
+          <td>{{M1_LINK}}</td>
+          <td>{{M1_LINK_PCT}}</td>
+          <td>{{M2_LINK}}</td>
+          <td>{{M2_LINK_PCT}}</td>
+          <td>{{M3_LINK}}</td>
+          <td>{{M3_LINK_PCT}}</td>
+          <td>{{TOTAL_LINK}}</td>
+          <td>{{TOTAL_LINK_PCT}}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ========== å®åè½½ä½ææ ========== -->
+  <div class="section">
+    <div class="section-title">å®åè½½ä½ææï¼æäº¤æ¸ éï¼</div>
+    <table>
+      <thead>
+        <tr>
+          <th>å®åè½½ä½</th>
+          <th>{{MONTH1_NAME}}æäº¤</th>
+          <th>å æ¯</th>
+          <th>{{MONTH2_NAME}}æäº¤</th>
+          <th>å æ¯</th>
+          <th>{{MONTH3_NAME}}æäº¤</th>
+          <th>å æ¯</th>
+          <th>{{PERIOD}}åè®¡</th>
+          <th>{{PERIOD}}å æ¯</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="td-bold">ç´æ­é´</td>
+          <td class="td-red">{{M1_LIVE}}</td>
+          <td>{{M1_LIVE_PCT}}</td>
+          <td>{{M2_LIVE}}</td>
+          <td>{{M2_LIVE_PCT}}</td>
+          <td>{{M3_LIVE}}</td>
+          <td>{{M3_LIVE_PCT}}</td>
+          <td class="td-bold">{{TOTAL_LIVE}}</td>
+          <td class="td-bold">{{TOTAL_LIVE_PCT}}</td>
+        </tr>
+        <tr>
+          <td class="td-bold">ç­è§é¢</td>
+          <td>{{M1_VIDEO}}</td>
+          <td>{{M1_VIDEO_PCT}}</td>
+          <td class="td-red">{{M2_VIDEO}}</td>
+          <td>{{M2_VIDEO_PCT}}</td>
+          <td>{{M3_VIDEO}}</td>
+          <td>{{M3_VIDEO_PCT}}</td>
+          <td class="td-bold">{{TOTAL_VIDEO}}</td>
+          <td class="td-bold">{{TOTAL_VIDEO_PCT}}</td>
+        </tr>
+        <tr>
+          <td class="td-bold">ååå¡</td>
+          <td>{{M1_CARD}}</td>
+          <td>{{M1_CARD_PCT}}</td>
+          <td>{{M2_CARD}}</td>
+          <td>{{M2_CARD_PCT}}</td>
+          <td>{{M3_CARD}}</td>
+          <td>{{M3_CARD_PCT}}</td>
+          <td class="td-bold">{{TOTAL_CARD}}</td>
+          <td class="td-bold">{{TOTAL_CARD_PCT}}</td>
+        </tr>
+        <tr>
+          <td>å¶ä»</td>
+          <td>{{M1_OTHER_CH}}</td>
+          <td>{{M1_OTHER_CH_PCT}}</td>
+          <td>{{M2_OTHER_CH}}</td>
+          <td>{{M2_OTHER_CH_PCT}}</td>
+          <td>{{M3_OTHER_CH}}</td>
+          <td>{{M3_OTHER_CH_PCT}}</td>
+          <td>{{TOTAL_OTHER_CH}}</td>
+          <td>{{TOTAL_OTHER_CH_PCT}}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ========== è´¦å·æäº¤æç»ï¼ææï¼ ========== -->
+  <!-- ä¸ºæ¯ä¸ªæåå»ºä¸ä¸ªsectionï¼è¡¨æ ¼è¡æ°æ ¹æ®å®éè´¦å·æ°éå¢å -->
+  <div class="section">
+    <div class="section-title">è´¦å·æäº¤æç» â {{MONTH1_NAME}}</div>
+    <table>
+      <thead>
+        <tr>
+          <th>è´¦å·</th>
+          <th>ç±»å</th>
+          <th>æäº¤éé¢</th>
+          <th>éæ¬¾éé¢(æ¯ä»æ¥)</th>
+          <th>æäº¤è®¢åæ°</th>
+          <th>æäº¤äººæ°</th>
+          <th>å®¢åä»·</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- æ¯ä¸ªè´¦å·ä¸è¡ï¼èªè¥è´¦å·æ è®°"èªè¥"ï¼è¾¾äººæ è®°"è¾¾äºº" -->
+        <!-- æäº¤éé¢æé«çè¾¾äººè¡æ·»å  class="td-highlight" -->
+        {{M1_ACCOUNT_ROWS}}
+      </tbody>
+    </table>
+  </div>
+
+  <div class="section">
+    <div class="section-title">è´¦å·æäº¤æç» â {{MONTH2_NAME}}</div>
+    <table>
+      <thead>
+        <tr>
+          <th>è´¦å·</th>
+          <th>ç±»å</th>
+          <th>æäº¤éé¢</th>
+          <th>éæ¬¾éé¢(æ¯ä»æ¥)</th>
+          <th>æäº¤è®¢åæ°</th>
+          <th>æäº¤äººæ°</th>
+          <th>å®¢åä»·</th>
+        </tr>
+      </thead>
+      <tbody>
+        {{M2_ACCOUNT_ROWS}}
+      </tbody>
+    </table>
+  </div>
+
+  <div class="section">
+    <div class="section-title">è´¦å·æäº¤æç» â {{MONTH3_NAME}}</div>
+    <table>
+      <thead>
+        <tr>
+          <th>è´¦å·</th>
+          <th>ç±»å</th>
+          <th>æäº¤éé¢</th>
+          <th>éæ¬¾éé¢(æ¯ä»æ¥)</th>
+          <th>æäº¤è®¢åæ°</th>
+          <th>æäº¤äººæ°</th>
+          <th>å®¢åä»·</th>
+        </tr>
+      </thead>
+      <tbody>
+        {{M3_ACCOUNT_ROWS}}
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ========== å­£åº¦å¯¹æ¯ï¼å¯éï¼ ========== -->
+  <!-- å¦ææå¶ä»å­£åº¦çæ°æ®å¯åå¯¹æ¯ï¼æ¿æ¢å ä½ç¬¦ï¼æ å¯¹æ¯æ°æ®æ¶å é¤æ­¤section -->
+  <div class="section">
+    <div class="section-title">{{PERIOD}} vs {{COMPARE_PERIOD}} å­£åº¦å¯¹æ¯</div>
+    <table>
+      <thead>
+        <tr>
+          <th>ææ </th>
+          <th>{{PERIOD}}</th>
+          <th>{{COMPARE_PERIOD}}</th>
+          <th>ç¯æ¯åå</th>
+          <th>è¶å¿</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="td-bold">æäº¤éé¢</td>
+          <td class="td-red">{{TOTAL_GMV}}</td>
+          <td class="td-red">{{COMPARE_GMV}}</td>
+          <td class="td-green">{{COMPARE_GMV_CHANGE}}</td>
+          <td>{{COMPARE_GMV_TREND}}</td>
+        </tr>
+        <tr>
+          <td class="td-bold">éæ¬¾éé¢ï¼æ¯ä»æ¥ï¼</td>
+          <td>{{TOTAL_REFUND}}</td>
+          <td>{{COMPARE_REFUND}}</td>
+          <td class="td-green">{{COMPARE_REFUND_CHANGE}}</td>
+          <td>{{COMPARE_REFUND_TREND}}</td>
+        </tr>
+        <tr>
+          <td class="td-bold">åæäº¤é¢</td>
+          <td>{{NET_GMV}}</td>
+          <td>{{COMPARE_NET}}</td>
+          <td class="td-green">{{COMPARE_NET_CHANGE}}</td>
+          <td>{{COMPARE_NET_TREND}}</td>
+        </tr>
+        <tr>
+          <td class="td-bold">æäº¤è®¢åæ°</td>
+          <td>{{TOTAL_ORDERS}}</td>
+          <td>{{COMPARE_ORDERS}}</td>
+          <td class="td-green">{{COMPARE_ORDERS_CHANGE}}</td>
+          <td>{{COMPARE_ORDERS_TREND}}</td>
+        </tr>
+        <tr>
+          <td class="td-bold">å®¢åä»·</td>
+          <td>{{AVG_PRICE}}</td>
+          <td>{{COMPARE_AVG}}</td>
+          <td class="trend-up">{{COMPARE_AVG_CHANGE}}</td>
+          <td>{{COMPARE_AVG_TREND}}</td>
+        </tr>
+        <tr>
+          <td class="td-bold">éé¢éæ¬¾ç</td>
+          <td class="td-red">{{REFUND_RATE}}%</td>
+          <td class="td-red">{{COMPARE_REFUND_RATE}}%</td>
+          <td class="trend-down">{{COMPARE_REFUND_RATE_CHANGE}}</td>
+          <td>{{COMPARE_REFUND_RATE_TREND}}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ========== å³é®æ´å¯ ========== -->
+  <!-- æ ¹æ®æ°æ®åæç»æèªå¨çææ´å¯ï¼æ¯æ¡ç¨ä¸ä¸ª insight-box -->
+  <!-- danger=çº¢è²(ä¸¥éé®é¢), info=èè²(ä¿¡æ¯), success=ç»¿è²(æ­£é¢), é»è®¤=é»è²(ä¸è¬) -->
+  <div class="section">
+    <div class="section-title">å³é®åç°ä¸æ´å¯</div>
+    {{INSIGHT_BOXES}}
+  </div>
+
+  <!-- ========== æ°æ®è¯´æ ========== -->
+  <div class="section">
+    <div class="section-title">æ°æ®è¯´æ</div>
+    <table>
+      <tbody>
+        <tr><td class="td-bold" style="text-align:left;">æ°æ®æ¥æº</td><td style="text-align:left;">å¿«æå°åºçæé â å¨åºæäº¤åæï¼éææ¥è¯¢ï¼</td></tr>
+        <tr><td class="td-bold" style="text-align:left;">ç»è®¡å£å¾</td><td style="text-align:left;">æãèªç¶æãç­éï¼æäº¤éé¢ææ¯ä»æ¥ç»è®¡</td></tr>
+        <tr><td class="td-bold" style="text-align:left;">éæ¬¾éé¢ï¼æ¯ä»æ¥ï¼</td><td style="text-align:left;">æè®¢åæ¯ä»æ¥å¯¹åºçéæ¬¾éé¢æ±æ»</td></tr>
+        <tr><td class="td-bold" style="text-align:left;">éæ¬¾éé¢ï¼éæ¬¾æ¥ï¼</td><td style="text-align:left;">æå®ééæ¬¾æä½æ¥æ±æ»ï¼ä¸æ¯ä»æ¥å£å¾æå·®å¼</td></tr>
+        <tr><td class="td-bold" style="text-align:left;">å®¢åä»·</td><td style="text-align:left;">æäº¤éé¢ / æäº¤äººæ°</td></tr>
+        <tr><td class="td-bold" style="text-align:left;">åæäº¤é¢</td><td style="text-align:left;">æäº¤éé¢ - éæ¬¾éé¢ï¼æ¯ä»æ¥ï¼ï¼ä¸ºä¼°ç®å®éå¥è´¦</td></tr>
+        <tr><td class="td-bold" style="text-align:left;">è´¦å·æç»</td><td style="text-align:left;">ä»å±ç¤ºå½æææäº¤çä¸»è¦è´¦å·ï¼é¿å°¾è´¦å·æªå®å¨ååº</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="footer">
+    æ¥åç± WorkBuddy èªå¨çæ | æ°æ®æ¥è¯¢æ¶é´ï¼{{REPORT_DATE}} | åºéºï¼{{SHOP_NAME}}
+  </div>
+
+</div>
+</body>
+</html>
